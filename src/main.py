@@ -44,12 +44,10 @@ class UiWindow(QMainWindow):
         self.publicPath.setText(QFileDialog.getOpenFileName()[0])
 
     def genKeys(self):
-        self.controller.generate_keys(self.publicPath.text(
-        ), self.privatePath.text(), self.password.text())
+        self.controller.generate_keys(self.publicPath.text(), self.privatePath.text(), self.password.text())
 
     def encrypt(self):
-        self.controller.load_keys(self.publicPath.text(
-        ), self.privatePath.text(), self.password.text())
+        self.controller.load_keys(self.publicPath.text(), self.privatePath.text(), self.password.text())
         self.controller.encrypt(self.inputPath.text(), self.outputPath.text())
 
     def decrypt(self):
