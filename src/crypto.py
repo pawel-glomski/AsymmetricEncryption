@@ -38,3 +38,35 @@ def decryptCTR(private_key_string, json_data):
     decrypted_data = cipher.decrypt(cipher_data)
 
     return decrypted_data
+
+
+def generate_keys(public_path, private_path, password=None):
+    private_key = RSA.generate(2048)
+    public_key = private_key.publickey()
+
+    with open(public_path, 'wb') as f:
+        f.write(public_key.export_key())
+
+    with open(private_path, 'wb') as f:
+        if password == None:
+            f.write(private_key.export_key())
+        else:
+            f.write(private_key.export_key(passphrase=password))
+
+
+# jesli zle haslo zwraca None, inaczej krotke kluczy (RSA Key object)
+# only one: 0 - zaladuj oba, 1 - zaladuj tylko publiczny, 2 - zaladuj tylko prywatny
+def load_keys(public_path, private_path, password=None):
+    with open(public_path, 'r') as f:
+        public_key = RSA.import_key(f.read())
+
+    with open(private_path, 'r') as f:
+        try:
+            if password == None:
+                private_key = RSA.importKey(f.read())
+            else:
+                private_key = RSA.importKey(f.read(), passphrase=password)
+        except:
+            return None
+
+    return (public_key, private_key)
