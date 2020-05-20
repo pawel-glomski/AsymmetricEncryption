@@ -51,7 +51,9 @@ class UiWindow(QMainWindow):
         self.controller.encrypt(self.inputPath.text(), self.outputPath.text())
 
     def decrypt(self):
-        print('decrypt')
+        self.controller.load_keys(self.publicPath.text(
+        ), self.privatePath.text(), self.password.text())
+        self.controller.decrypt(self.inputPath.text(), self.outputPath.text())
 
 
 app = QApplication([])

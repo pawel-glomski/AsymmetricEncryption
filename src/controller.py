@@ -22,4 +22,13 @@ class Controller:
             data = f.read()
         public_key_string = self.public_key.export_key()
         result = encrypt(public_key_string, data)
-        print(result)
+        output_path += '.json'
+        with open(output_path, 'w') as f:
+            json.dump(result, f)
+
+    def decrypt(self, data_path, output_path):
+        with open(data_path, 'r') as f:
+            json_data = json.load(f)
+        decrypted_data = decrypt(self.private_key.exportKey(), json_data)
+        with open(output_path, 'wb') as f:
+            f.write(decrypted_data)
