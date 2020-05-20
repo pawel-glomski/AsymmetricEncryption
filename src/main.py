@@ -1,4 +1,3 @@
-
 from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from Crypto.PublicKey import RSA, DSA
@@ -50,7 +49,8 @@ class UiWindow(QMainWindow):
         ...  # save at privatePath and publicPath
 
     def encrypt(self):
-        print("Szyfrowanie pliku:", self.inputPath.text(), "do:", self.outputPath.text(), "trybem: ", self.encModeBox.currentText())
+        print("Szyfrowanie pliku:", self.inputPath.text(), "do:",
+              self.outputPath.text(), "trybem: ", self.encModeBox.currentText())
 
     def decrypt(self):
         print('decrypt')
