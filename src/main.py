@@ -1,10 +1,12 @@
-
 from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from Crypto.PublicKey import RSA, DSA
 from Crypto.Util import Counter
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
+from pathlib import Path
+
+import crypto
 
 
 class UiWindow(QMainWindow):
@@ -47,13 +49,46 @@ class UiWindow(QMainWindow):
         print('genKeys')
         ...  # save at privatePath and publicPath
 
+    def showPopup(self, text, icon=QMessageBox.Critical):
+        msg = QMessageBox()
+        msg.setIcon(icon)
+        msg.setText(text)
+        msg.exec()
+
     def encrypt(self):
-        print("Szyfrowanie pliku:", self.inputPath.text(), "trybem: ", self.encModeBox.currentText())
-        saveFile = QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')
+        inputPath = Path(self.inputPath.text())
+        keyPath = Path(self.publicPath.text())
+        if inputPath.is_file() and keyPath.is_file():
+            with open(inputPath, 'rb') as f:
+                buffer = f.read()
+            with open(keyPath, 'rb') as key:
+                try:
+                    jsonData = crypto.encryptCTR(key.read(), buffer)
+                except ValueError:
+                    return self.showPopup('Zły plik z kluczem')
+            with open(QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0], 'w') as jsonFile:
+                jsonFile.write(jsonData)
+        else:
+            self.showPopup(('Zła ścieżka pliku do szyfrowania' if not inputPath.is_file() else '') +
+                           '\nZła ścieżka pliku z kluczem' if not keyPath.is_file() else '')
 
     def decrypt(self):
-        print('decrypt')
-        saveFile = QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')
+        inputPath = Path(self.inputPath.text())
+        keyPath = Path(self.privatePath.text())
+        if inputPath.is_file() and keyPath.is_file():
+            with open(inputPath, 'rb') as f:
+                buffer = f.read()
+            with open(keyPath, 'rb') as key:
+                try:
+                    data = crypto.decryptCTR(key.read(), buffer)
+                except ValueError:
+                    return self.showPopup('Zły plik z kluczem')
+            with open(QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')[0], 'w') as f:
+                f.write(data)
+
+        else:
+            self.showPopup(('Zła ścieżka pliku do odszyfrowania' if not inputPath.is_file() else '') +
+                           '\nZła ścieżka pliku z kluczem' if not keyPath.is_file() else '')
 
 
 app = QApplication([])
