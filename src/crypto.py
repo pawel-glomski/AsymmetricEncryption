@@ -42,7 +42,7 @@ def decrypt(private_key_string, json_data):
 
 def generate_keys(public_path, private_path, password=None):
     private_key = RSA.generate(2048)
-    public_key = private_key.export_key()
+    public_key = private_key.publickey()
     private_path += 'priv.key'
     public_path += 'pub.key'
 
