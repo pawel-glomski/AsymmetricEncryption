@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>745</width>
-    <height>388</height>
+    <width>802</width>
+    <height>262</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,13 +18,13 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>70</y>
-      <width>691</width>
-      <height>264</height>
+      <y>20</y>
+      <width>741</width>
+      <height>211</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="13" column="2">
+     <item row="12" column="2">
       <widget class="QLineEdit" name="password">
        <property name="text">
         <string/>
@@ -40,7 +40,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="4">
+     <item row="4" column="4">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Tryb</string>
@@ -50,14 +50,14 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="3">
+     <item row="8" column="3">
       <widget class="QToolButton" name="privateButton">
        <property name="text">
         <string>...</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="2">
+     <item row="8" column="2">
       <widget class="QLineEdit" name="privatePath">
        <property name="placeholderText">
         <string>Klucz prywatny</string>
@@ -71,14 +71,14 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="3">
+     <item row="7" column="3">
       <widget class="QToolButton" name="publicButton">
        <property name="text">
         <string>...</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="4">
+     <item row="7" column="4">
       <widget class="QPushButton" name="encryptButton">
        <property name="minimumSize">
         <size>
@@ -91,7 +91,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="2">
+     <item row="7" column="2">
       <widget class="QLineEdit" name="publicPath">
        <property name="placeholderText">
         <string>Klucz publiczny</string>
@@ -110,11 +110,18 @@
         <string/>
        </property>
        <property name="placeholderText">
-        <string>Plik wejsciowy</string>
+        <string>Plik wejściowy</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="4">
+     <item row="6" column="2">
+      <widget class="QPushButton" name="genButton">
+       <property name="text">
+        <string>Generuj klucze</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="4">
       <widget class="QComboBox" name="encModeBox">
        <item>
         <property name="text">
@@ -168,7 +175,7 @@
        </item>
       </widget>
      </item>
-     <item row="9" column="4">
+     <item row="8" column="4">
       <widget class="QPushButton" name="decryptButton">
        <property name="minimumSize">
         <size>
@@ -182,19 +189,6 @@
       </widget>
      </item>
      <item row="4" column="2">
-      <widget class="QLineEdit" name="outputPath">
-       <property name="minimumSize">
-        <size>
-         <width>250</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="placeholderText">
-        <string>Plik wyjściowy</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -206,13 +200,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item row="7" column="2">
-      <widget class="QPushButton" name="genButton">
-       <property name="text">
-        <string>Generuj klucze</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </widget>

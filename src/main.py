@@ -11,7 +11,6 @@ class UiWindow(QMainWindow):
     def __init__(self):
         super(UiWindow, self).__init__()
         uic.loadUi('interface.ui', self)
-
         self.fileButton = self.findChild(QToolButton, 'fileButton')
         self.privateButton = self.findChild(QToolButton, 'privateButton')
         self.publicButton = self.findChild(QToolButton, 'publicButton')
@@ -20,7 +19,6 @@ class UiWindow(QMainWindow):
         self.genButton = self.findChild(QPushButton, 'genButton')
 
         self.inputPath = self.findChild(QLineEdit, 'inputPath')
-        self.outputPath = self.findChild(QLineEdit, 'outputPath')
         self.privatePath = self.findChild(QLineEdit, 'privatePath')
         self.publicPath = self.findChild(QLineEdit, 'publicPath')
 
@@ -50,10 +48,12 @@ class UiWindow(QMainWindow):
         ...  # save at privatePath and publicPath
 
     def encrypt(self):
-        print("Szyfrowanie pliku:", self.inputPath.text(), "do:", self.outputPath.text(), "trybem: ", self.encModeBox.currentText())
+        print("Szyfrowanie pliku:", self.inputPath.text(), "trybem: ", self.encModeBox.currentText())
+        saveFile = QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')
 
     def decrypt(self):
         print('decrypt')
+        saveFile = QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')
 
 
 app = QApplication([])
