@@ -5,7 +5,6 @@ from Crypto.Util import Counter
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto.Random import get_random_bytes
-from pathlib import Path
 
 import crypto
 from AESencrypion import AESencryptCBC, AESdecrypt
@@ -41,6 +40,12 @@ class UiWindow(QMainWindow):
 
         self.controller = Controller()
 
+    def showPopup(self, text, icon=QMessageBox.Critical):
+        msg = QMessageBox()
+        msg.setIcon(icon)
+        msg.setText(text)
+        msg.exec()
+
     def chooseInputFile(self):
         self.inputPath.setText(QFileDialog.getOpenFileName()[0])
 
@@ -51,61 +56,38 @@ class UiWindow(QMainWindow):
         self.publicPath.setText(QFileDialog.getOpenFileName()[0])
 
     def genKeys(self):
-        self.controller.generate_keys(self.publicPath.text(), self.privatePath.text(), self.password.text())
-
-    def showPopup(self, text, icon=QMessageBox.Critical):
-        msg = QMessageBox()
-        msg.setIcon(icon)
-        msg.setText(text)
-        msg.exec()
+        if self.controller.generate_keys(self.publicPath.text(), self.privatePath.text(), self.password.text()):
+            self.showPopup('Wygenerowano pomyślnie', QMessageBox.Information)
+        else:
+            self.showPopup('Podaj poprawne ścieżki do zapisu wygenerowanych kluczy')
 
     def encrypt(self):
+        if self.controller.load_public(self.publicPath.text()) is None:
+            return self.showPopup('Zła ścieżka pliku z kluczem')
+
         inputPath = Path(self.inputPath.text())
-        keyPath = Path(self.publicPath.text())
-        if inputPath.is_file() and keyPath.is_file():
-            with open(inputPath, 'rb') as f:
-                buffer = f.read()
-            with open(keyPath, 'rb') as key:
-                try:
-                    jsonData = crypto.encryptCTR(key.read(), buffer)
-                except ValueError:
-                    return self.showPopup('Zły plik z kluczem')
-            with open(QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0], 'w') as jsonFile:
-                jsonFile.write(jsonData)
+        if inputPath.is_file():
+            if self.controller.encrypt(self.inputPath.text(), QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0]):
+                self.showPopup('Zaszyfrowano pomyślnie', QMessageBox.Information)
         else:
-            self.showPopup(('Zła ścieżka pliku do szyfrowania' if not inputPath.is_file() else '') +
-                           '\nZła ścieżka pliku z kluczem' if not keyPath.is_file() else '')
-        # saveFile = QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0]
-        # if self.encModeBox.currentText() == 'CBC':
-        #     hashedPassword = SHA256.new(self.password.text().encode('utf-8')).digest()
-        #     AESencryptCBC(hashedPassword, self.inputPath.text(), saveFile)
-        # else:
-        #     print('Not implemented')
-        # self.controller.load_keys(self.publicPath.text(), self.privatePath.text(), self.password.text())
-        # self.controller.encrypt(self.inputPath.text(), self.outputPath.text())
+            self.showPopup('Zła ścieżka pliku do szyfrowania')
 
     def decrypt(self):
+        try:
+            if self.controller.load_private(self.privatePath.text(), self.password.text()) is None:
+                return self.showPopup('Zła ścieżka pliku z kluczem')
+        except:
+            return self.showPopup('Błąd odczytu klucza')
+
         inputPath = Path(self.inputPath.text())
-        keyPath = Path(self.privatePath.text())
-        if inputPath.is_file() and keyPath.is_file():
-            with open(inputPath, 'rb') as f:
-                jsonData = f.read()
-            with open(keyPath, 'rb') as key:
-                try:
-                    data = crypto.decryptCTR(key.read(), jsonData)
-                except ValueError:
-                    return self.showPopup('Zły plik z kluczem')
-            with open(QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')[0], 'wb') as f:
-                f.write(data)
-
+        if inputPath.is_file():
+            try:
+                if self.controller.decrypt(self.inputPath.text(), QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')[0]):
+                    self.showPopup('Odszyfrowano pomyślnie', QMessageBox.Information)
+            except:
+                return self.showPopup('Błędny format pliku')
         else:
-            self.showPopup(('Zła ścieżka pliku do odszyfrowania' if not inputPath.is_file() else '') +
-                           '\nZła ścieżka pliku z kluczem' if not keyPath.is_file() else '')
-
-    # def decrypt(self):
-    #     saveFile = QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')[0]
-    #     hashedPassword = SHA256.new(self.password.text().encode('utf-8')).digest()
-    #     AESdecrypt(hashedPassword, self.inputPath.text(), saveFile)
+            self.showPopup('Zła ścieżka pliku do odszyfrowania')
 
 
 app = QApplication([])
