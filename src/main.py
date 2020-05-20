@@ -1,9 +1,6 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import *
-from Crypto.PublicKey import RSA, DSA
-from Crypto.Util import Counter
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
+from controller import *
 
 
 class UiWindow(QMainWindow):
@@ -35,6 +32,8 @@ class UiWindow(QMainWindow):
 
         self.show()
 
+        self.controller = Controller()
+
     def chooseInputFile(self):
         self.inputPath.setText(QFileDialog.getOpenFileName()[0])
 
@@ -45,12 +44,13 @@ class UiWindow(QMainWindow):
         self.publicPath.setText(QFileDialog.getOpenFileName()[0])
 
     def genKeys(self):
-        print('genKeys')
-        ...  # save at privatePath and publicPath
+        self.controller.generate_keys(self.publicPath.text(
+        ), self.privatePath.text(), self.password.text())
 
     def encrypt(self):
-        print("Szyfrowanie pliku:", self.inputPath.text(), "do:",
-              self.outputPath.text(), "trybem: ", self.encModeBox.currentText())
+        self.controller.load_keys(self.publicPath.text(
+        ), self.privatePath.text(), self.password.text())
+        self.controller.encrypt(self.inputPath.text(), self.outputPath.text())
 
     def decrypt(self):
         print('decrypt')
