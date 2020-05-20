@@ -7,7 +7,6 @@ from Crypto.Hash import SHA256
 from Crypto.Random import get_random_bytes
 
 import crypto
-from AESencrypion import AESencryptCBC, AESdecrypt
 from controller import *
 
 
@@ -88,6 +87,20 @@ class UiWindow(QMainWindow):
                 return self.showPopup('Błędny format pliku')
         else:
             self.showPopup('Zła ścieżka pliku do odszyfrowania')
+
+    # def encrypt(self):
+    #     print("Szyfrowanie pliku:", self.inputPath.text(), "trybem: ", self.encModeBox.currentText())
+    #     saveFile = QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0]
+    #     if self.encModeBox.currentText() == 'CBC':
+    #         hashedPassword = SHA256.new(self.password.text().encode('utf-8')).digest()
+    #         AESencryptCBC(hashedPassword, self.inputPath.text(), saveFile)
+    #     else:
+    #         print('Not implemented')
+
+    # def decrypt(self):
+    #     saveFile = QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')[0]
+    #     hashedPassword = SHA256.new(self.password.text().encode('utf-8')).digest()
+    #     AESdecrypt(hashedPassword, self.inputPath.text(), saveFile)
 
 
 app = QApplication([])
