@@ -43,8 +43,6 @@ def decrypt(private_key_string, json_data):
 def generate_keys(public_path, private_path, password=None):
     private_key = RSA.generate(2048)
     public_key = private_key.publickey()
-    private_path += 'priv.key'
-    public_path += 'pub.key'
 
     with open(public_path, 'wb') as f:
         f.write(public_key.export_key())
@@ -57,6 +55,7 @@ def generate_keys(public_path, private_path, password=None):
 
 
 # jesli zle haslo zwraca None, inaczej krotke kluczy (RSA Key object)
+# only one: 0 - zaladuj oba, 1 - zaladuj tylko publiczny, 2 - zaladuj tylko prywatny
 def load_keys(public_path, private_path, password=None):
     with open(public_path, 'r') as f:
         public_key = RSA.import_key(f.read())
@@ -73,14 +72,18 @@ def load_keys(public_path, private_path, password=None):
     return (public_key, private_key)
 
 
-key = RSA.generate(2048)
-public_key_string = key.publickey().export_key()
-data = b'adsadsad'
+# key = RSA.generate(2048)
+# public_key_string = key.publickey().export_key()
+# generate_keys('pub', 'priv')
+# (public_key, private_key) = load_keys('pubpub', 'privpriv')
+# data = b'adsadsad'
 
-json_result = encrypt(public_key_string, data)
+# public_key_string = public_key.export_key()
 
-decrypted_data = decrypt(key.export_key(), json_result)
-print(decrypted_data)
+# json_result = encrypt(public_key_string, data)
+
+# decrypted_data = decrypt(private_key.export_key(), json_result)
+# print(decrypted_data)
 
 # data = b'abcdefgb'
 # sync_key = get_random_bytes(16)
