@@ -6,38 +6,71 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
 import os
+import mmap
 
 
-def encryptCTR(public_key_string, data):
+def encryptCTR(public_key_string, data_path, ouput_path, chunkSize=64*1024):
     public_key = RSA.import_key(public_key_string)
 
     sync_key = get_random_bytes(32)
     cipher = AES.new(sync_key, AES.MODE_CTR)
-    cipher_data = cipher.encrypt(data)
+    # cipher_data = cipher.encrypt(data)
     nonce = cipher.nonce
 
     encryptor = PKCS1_OAEP.new(public_key)
     encrypted_key = encryptor.encrypt(sync_key)
 
-    json_result = json.dumps({'nonce': b64encode(nonce).decode('utf-8'), 'encrypted_key': b64encode(
-        encrypted_key).decode('utf-8'), 'cipher_data': b64encode(cipher_data).decode('utf-8')})
+    json_header = json.dumps({'nonce': b64encode(nonce).decode('utf-8'), 'encrypted_key': b64encode(
+        encrypted_key).decode('utf-8')})
 
-    return json_result
+    encryptToFile(data_path, json_header, ouput_path, cipher, chunkSize)
 
 
-def decryptCTR(private_key_string, json_data):
+def encryptToFile(data_path, header, output_path, cipher, chunkSize):
+    with open(output_path, 'w') as fo:
+        fo.write(header)
+        fo.write('\n')
+
+    with open(data_path, 'rb') as fi:
+        with open(output_path, 'ab') as fo:
+            while True:
+                chunk = fi.read(chunkSize)
+                if len(chunk) == 0:
+                    break
+                elif len(chunk) % 16 != 0:
+                    chunk += b' ' * (16 - (len(chunk) % 16))
+                fo.write(cipher.encrypt(chunk))
+
+
+def decryptCTR(private_key_string, data_path, ouput_path, chunkSize=64*1024):
     private_key = RSA.import_key(private_key_string)
-    nonce = b64decode(json_data['nonce'])
-    cipher_data = b64decode(json_data['cipher_data'])
-    encrypted_key = b64decode(json_data['encrypted_key'])
+
+    with open(data_path, 'rb') as f:  # read header
+        with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as stream:
+            data_offset = stream.find(b'}') + 2
+            jsonStr = f.read(stream.find(b'}') + 2)
+            header_json = json.loads(jsonStr)
+
+    nonce = b64decode(header_json['nonce'])
+    encrypted_key = b64decode(header_json['encrypted_key'])
 
     decryptor = PKCS1_OAEP.new(private_key)
     sync_key = decryptor.decrypt(encrypted_key)
 
     cipher = AES.new(sync_key, AES.MODE_CTR, nonce=nonce)
-    decrypted_data = cipher.decrypt(cipher_data)
+    # decrypted_data = cipher.decrypt(cipher_data)
+    decryptToFile(data_path, ouput_path, cipher, data_offset, chunkSize)
 
-    return decrypted_data
+
+def decryptToFile(data_path, output_path, cipher, data_offset, chunkSize):
+    with open(data_path, 'rb') as fi:
+        fi.seek(data_offset)
+        with open(output_path, 'wb') as fo:
+            while True:
+                chunk = fi.read(chunkSize)
+                if len(chunk) == 0:
+                    break
+                fo.write(cipher.decrypt(chunk))
 
 
 def saveHeader(file, mode, filesize, IV):

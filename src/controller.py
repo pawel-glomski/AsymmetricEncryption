@@ -1,7 +1,6 @@
 from crypto import *
 from Crypto.PublicKey import RSA
 from pathlib import Path
-import mmap
 
 
 class Controller:
@@ -37,31 +36,21 @@ class Controller:
                 if password == None:
                     self.private_key = RSA.importKey(f.read())
                 else:
-                    self.private_key = RSA.importKey(f.read(), passphrase=password)
+                    self.private_key = RSA.importKey(
+                        f.read(), passphrase=password)
         return self.private_key
 
     def encrypt(self, data_path, output_path):
         if output_path == '':
             return False
-        with open(data_path, 'rb') as f:
-            data = f.read()
+        if Path(output_path).suffix != '.encjson':
+            output_path += '.encjson'
         public_key_string = self.public_key.export_key()
-        result = encryptCTR(public_key_string, data)
-        if Path(output_path).suffix != '.json':
-            output_path += '.json'
-
-        with open(output_path, 'w') as f:
-            f.write(result)
+        encryptCTR(public_key_string, data_path, output_path)
         return True
 
     def decrypt(self, data_path, output_path):
         if output_path == '':
             return False
-        with open(data_path, 'r') as f:
-            with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as stream:
-                jsonStr = f.read(stream.find(b'}') + 1)
-                json_data = json.loads(jsonStr)
-        decrypted_data = decryptCTR(self.private_key.exportKey(), json_data)
-        with open(output_path, 'wb') as f:
-            f.write(decrypted_data)
+        decryptCTR(self.private_key.exportKey(), data_path, output_path)
         return True
