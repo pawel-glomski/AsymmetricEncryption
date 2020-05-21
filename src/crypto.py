@@ -12,8 +12,11 @@ import mmap
 EncryptedDataLabel = b'cipher_data:'
 
 
-def makeCipher(encModeStr: str, sym_key: bytes, initBytes=None):
+def makeCipher(encModeStr: str, sym_key: bytes, filesize, initBytes=None):
     mode = getattr(AES, 'MODE_'+encModeStr)
+    if mode == AES.MODE_CCM:
+        filesize += 100
+        return AES.new(sym_key, mode, nonce=initBytes, msg_len=filesize)
     if initBytes is None:
         return AES.new(sym_key, mode)
     if hasattr(AES.new(sym_key, mode), 'nonce'):
@@ -21,16 +24,22 @@ def makeCipher(encModeStr: str, sym_key: bytes, initBytes=None):
     return AES.new(sym_key, mode, initBytes)  # iv
 
 
-def makeHeader(cipher, sym_key: bytes, encModeStr: str, public_key_string: str) -> str:
+def makeHeader(cipher, sym_key: bytes, encModeStr: str, public_key_string: str, filesize: int) -> str:
     initBytes = cipher.nonce if hasattr(cipher, 'nonce') else cipher.iv
-    encrypted_key = PKCS1_OAEP.new(RSA.import_key(public_key_string)).encrypt(sym_key)
-    return json.dumps({'initBytes': b64encode(initBytes).decode('utf-8'), 'encrypted_key':  b64encode(encrypted_key).decode('utf-8'), 'mode': encModeStr})
+    encrypted_key = PKCS1_OAEP.new(
+        RSA.import_key(public_key_string)).encrypt(sym_key)
+    return json.dumps({'initBytes': b64encode(initBytes).decode('utf-8'),
+                       'encrypted_key':  b64encode(encrypted_key).decode('utf-8'),
+                       'mode': encModeStr,
+                       'filesize': filesize})
 
 
 def encrypt(encModeStr, public_key_string, data_path, ouput_path, chunkSize=64*1024):
     sym_key = get_random_bytes(32)
-    cipher = makeCipher(encModeStr, sym_key)
-    json_header = makeHeader(cipher, sym_key, encModeStr, public_key_string)
+    filesize = os.path.getsize(data_path)
+    cipher = makeCipher(encModeStr, sym_key, filesize)
+    json_header = makeHeader(cipher, sym_key, encModeStr,
+                             public_key_string, filesize)
     encryptToFile(data_path, json_header, ouput_path, cipher, chunkSize)
 
 
@@ -56,19 +65,22 @@ def decrypt(private_key_string, data_path, ouput_path, chunkSize=64*1024):
     with open(data_path, 'rb') as f:  # read header
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as stream:
             header_json = json.loads(f.read(stream.find(b'}') + 1))
-            data_offset = stream.find(EncryptedDataLabel) + len(EncryptedDataLabel)
+            data_offset = stream.find(
+                EncryptedDataLabel) + len(EncryptedDataLabel)
 
     initBytes = b64decode(header_json['initBytes'])
     encrypted_key = b64decode(header_json['encrypted_key'])
     encModeStr = header_json['mode']
+    filesize = int(header_json['filesize'])
 
     sym_key = PKCS1_OAEP.new(private_key).decrypt(encrypted_key)
 
-    cipher = makeCipher(encModeStr, sym_key, initBytes)
-    decryptToFile(data_path, ouput_path, cipher, data_offset, chunkSize)
+    cipher = makeCipher(encModeStr, sym_key, filesize, initBytes)
+    decryptToFile(data_path, ouput_path, cipher,
+                  data_offset, filesize, chunkSize)
 
 
-def decryptToFile(data_path, output_path, cipher, data_offset, chunkSize):
+def decryptToFile(data_path, output_path, cipher, data_offset, filesize, chunkSize):
     with open(data_path, 'rb') as fi:
         fi.seek(data_offset)
         with open(output_path, 'wb') as fo:
@@ -77,3 +89,4 @@ def decryptToFile(data_path, output_path, cipher, data_offset, chunkSize):
                 if len(chunk) == 0:
                     break
                 fo.write(cipher.decrypt(chunk))
+            fo.truncate(filesize)
