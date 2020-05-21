@@ -1,6 +1,7 @@
 from crypto import *
 from Crypto.PublicKey import RSA
 from pathlib import Path
+import mmap
 
 
 class Controller:
@@ -57,7 +58,9 @@ class Controller:
         if output_path == '':
             return False
         with open(data_path, 'r') as f:
-            json_data = json.load(f)
+            with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as stream:
+                jsonStr = f.read(stream.find(b'}') + 1)
+                json_data = json.loads(jsonStr)
         decrypted_data = decryptCTR(self.private_key.exportKey(), json_data)
         with open(output_path, 'wb') as f:
             f.write(decrypted_data)
