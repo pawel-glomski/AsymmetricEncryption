@@ -44,10 +44,10 @@ class UiWindow(QMainWindow):
         msg.exec()
 
     def choosePrivateKeyFile(self):
-        self.privatePath.setText(QFileDialog.getOpenFileName()[0])
+        self.privatePath.setText(QFileDialog.getOpenFileName(self, 'Podaj ścieżkę do klucza prywatnego')[0])
 
     def choosePublicKeyFile(self):
-        self.publicPath.setText(QFileDialog.getOpenFileName()[0])
+        self.publicPath.setText(QFileDialog.getOpenFileName(self, 'Podaj ścieżkę do klucza publicznego')[0])
 
     def genKeys(self):
         self.publicPath.setText(QFileDialog.getSaveFileName(self, 'Zapisz klucz publiczny')[0])
@@ -67,7 +67,7 @@ class UiWindow(QMainWindow):
 
         inputPath = Path(QFileDialog.getOpenFileName(self, 'Wybierz plik')[0])
         if inputPath.is_file():
-            if self.controller.encrypt(str(inputPath), QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0]):
+            if self.controller.encrypt(self.encModeBox.currentText(), str(inputPath), QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0]):
                 self.showPopup('Zaszyfrowano pomyślnie', QMessageBox.Information)
         else:
             self.showPopup('Zła ścieżka pliku do szyfrowania')
@@ -88,20 +88,6 @@ class UiWindow(QMainWindow):
                 return self.showPopup('Błędny format pliku')
         else:
             self.showPopup('Zła ścieżka pliku do odszyfrowania')
-
-    # def encrypt(self):
-    #     print("Szyfrowanie pliku:", self.inputPath.text(), "trybem: ", self.encModeBox.currentText())
-    #     saveFile = QFileDialog.getSaveFileName(self, 'Zapisz zaszyfrowany plik')[0]
-    #     if self.encModeBox.currentText() == 'CBC':
-    #         hashedPassword = SHA256.new(self.password.text().encode('utf-8')).digest()
-    #         AESencryptCBC(hashedPassword, self.inputPath.text(), saveFile)
-    #     else:
-    #         print('Not implemented')
-
-    # def decrypt(self):
-    #     saveFile = QFileDialog.getSaveFileName(self, 'Zapisz odszyfrowany plik')[0]
-    #     hashedPassword = SHA256.new(self.password.text().encode('utf-8')).digest()
-    #     AESdecrypt(hashedPassword, self.inputPath.text(), saveFile)
 
 
 app = QApplication([])

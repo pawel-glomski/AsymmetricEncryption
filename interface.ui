@@ -6,25 +6,39 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
-    <height>252</height>
+    <width>741</width>
+    <height>147</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Szyfrowanie Asymetryczne</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="verticalLayoutWidget_2">
+   <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>0</x>
       <y>0</y>
-      <width>731</width>
-      <height>211</height>
+      <width>741</width>
+      <height>131</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Szyfruj i Odszyfruj</string>
+     </attribute>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>729</width>
+        <height>91</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="1">
         <widget class="QToolButton" name="publicButton">
@@ -48,11 +62,6 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <item>
-          <property name="text">
-           <string>ECB</string>
-          </property>
-         </item>
          <item>
           <property name="text">
            <string>CBC</string>
@@ -86,11 +95,6 @@
          <item>
           <property name="text">
            <string>GCM</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>SIV</string>
           </property>
          </item>
          <item>
@@ -179,15 +183,21 @@
         </widget>
        </item>
       </layout>
-     </item>
-     <item>
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Generuj</string>
+     </attribute>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>729</width>
+        <height>97</height>
+       </rect>
+      </property>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QLineEdit" name="genPass">
@@ -219,8 +229,8 @@
         </widget>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+    </widget>
    </widget>
   </widget>
  </widget>

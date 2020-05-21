@@ -1,6 +1,6 @@
-from crypto import *
 from Crypto.PublicKey import RSA
 from pathlib import Path
+import crypto
 
 
 class Controller:
@@ -40,17 +40,17 @@ class Controller:
                         f.read(), passphrase=password)
         return self.private_key
 
-    def encrypt(self, data_path, output_path):
+    def encrypt(self, encModeStr, data_path, output_path):
         if output_path == '':
             return False
-        if Path(output_path).suffix != '.encjson':
-            output_path += '.encjson'
+        if Path(output_path).suffix != '.jsonenc':
+            output_path += '.jsonenc'
         public_key_string = self.public_key.export_key()
-        encryptCTR(public_key_string, data_path, output_path)
+        crypto.encrypt(encModeStr, public_key_string, data_path, output_path)
         return True
 
     def decrypt(self, data_path, output_path):
         if output_path == '':
             return False
-        decryptCTR(self.private_key.exportKey(), data_path, output_path)
+        crypto.decrypt(self.private_key.exportKey(), data_path, output_path)
         return True

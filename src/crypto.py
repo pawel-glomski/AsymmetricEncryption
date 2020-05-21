@@ -9,27 +9,35 @@ import os
 import mmap
 
 
-def encryptCTR(public_key_string, data_path, ouput_path, chunkSize=64*1024):
-    public_key = RSA.import_key(public_key_string)
+EncryptedDataLabel = b'cipher_data:'
 
-    sync_key = get_random_bytes(32)
-    cipher = AES.new(sync_key, AES.MODE_CTR)
-    # cipher_data = cipher.encrypt(data)
-    nonce = cipher.nonce
 
-    encryptor = PKCS1_OAEP.new(public_key)
-    encrypted_key = encryptor.encrypt(sync_key)
+def makeCipher(encModeStr: str, sym_key: bytes, initBytes=None):
+    mode = getattr(AES, 'MODE_'+encModeStr)
+    if initBytes is None:
+        return AES.new(sym_key, mode)
+    if hasattr(AES.new(sym_key, mode), 'nonce'):
+        return AES.new(sym_key, mode, nonce=initBytes)
+    return AES.new(sym_key, mode, initBytes)  # iv
 
-    json_header = json.dumps({'nonce': b64encode(nonce).decode('utf-8'), 'encrypted_key': b64encode(
-        encrypted_key).decode('utf-8')})
 
+def makeHeader(cipher, sym_key: bytes, encModeStr: str, public_key_string: str) -> str:
+    initBytes = cipher.nonce if hasattr(cipher, 'nonce') else cipher.iv
+    encrypted_key = PKCS1_OAEP.new(RSA.import_key(public_key_string)).encrypt(sym_key)
+    return json.dumps({'initBytes': b64encode(initBytes).decode('utf-8'), 'encrypted_key':  b64encode(encrypted_key).decode('utf-8'), 'mode': encModeStr})
+
+
+def encrypt(encModeStr, public_key_string, data_path, ouput_path, chunkSize=64*1024):
+    sym_key = get_random_bytes(32)
+    cipher = makeCipher(encModeStr, sym_key)
+    json_header = makeHeader(cipher, sym_key, encModeStr, public_key_string)
     encryptToFile(data_path, json_header, ouput_path, cipher, chunkSize)
 
 
 def encryptToFile(data_path, header, output_path, cipher, chunkSize):
     with open(output_path, 'w') as fo:
         fo.write(header)
-        fo.write('\n')
+        fo.write(EncryptedDataLabel.decode('ascii'))
 
     with open(data_path, 'rb') as fi:
         with open(output_path, 'ab') as fo:
@@ -42,23 +50,21 @@ def encryptToFile(data_path, header, output_path, cipher, chunkSize):
                 fo.write(cipher.encrypt(chunk))
 
 
-def decryptCTR(private_key_string, data_path, ouput_path, chunkSize=64*1024):
+def decrypt(private_key_string, data_path, ouput_path, chunkSize=64*1024):
     private_key = RSA.import_key(private_key_string)
 
     with open(data_path, 'rb') as f:  # read header
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as stream:
-            data_offset = stream.find(b'}') + 2
-            jsonStr = f.read(stream.find(b'}') + 2)
-            header_json = json.loads(jsonStr)
+            header_json = json.loads(f.read(stream.find(b'}') + 1))
+            data_offset = stream.find(EncryptedDataLabel) + len(EncryptedDataLabel)
 
-    nonce = b64decode(header_json['nonce'])
+    initBytes = b64decode(header_json['initBytes'])
     encrypted_key = b64decode(header_json['encrypted_key'])
+    encModeStr = header_json['mode']
 
-    decryptor = PKCS1_OAEP.new(private_key)
-    sync_key = decryptor.decrypt(encrypted_key)
+    sym_key = PKCS1_OAEP.new(private_key).decrypt(encrypted_key)
 
-    cipher = AES.new(sync_key, AES.MODE_CTR, nonce=nonce)
-    # decrypted_data = cipher.decrypt(cipher_data)
+    cipher = makeCipher(encModeStr, sym_key, initBytes)
     decryptToFile(data_path, ouput_path, cipher, data_offset, chunkSize)
 
 
@@ -71,59 +77,3 @@ def decryptToFile(data_path, output_path, cipher, data_offset, chunkSize):
                 if len(chunk) == 0:
                     break
                 fo.write(cipher.decrypt(chunk))
-
-
-def saveHeader(file, mode, filesize, IV):
-    file.write(str(len(mode)).zfill(16).encode('utf-8'))
-    file.write(mode.zfill(16).encode('utf-8'))
-    file.write(filesize.encode('utf-8'))
-    file.write(IV)
-
-
-def loadHeader(file):
-    modeLength = int(file.read(16))
-    mode = file.read(16).decode('utf-8')
-    mode = mode[-modeLength:]
-    filesize = int(file.read(16))
-    IV = file.read(16)
-    return mode, filesize, IV
-
-
-def AESencryptCBC(key, filename, outputFilename, chunkSize=64*1024):
-    filesize = str(os.path.getsize(filename)).zfill(16)
-    IV = get_random_bytes(16)
-    encryptor = AES.new(key, AES.MODE_CBC, IV)
-
-    with open(filename, 'rb') as fi:
-        with open(outputFilename, 'wb') as fo:
-            mode = 'CBC'
-            saveHeader(fo, mode, filesize, IV)
-            while True:
-                chunk = fi.read(chunkSize)
-                if len(chunk) == 0:
-                    break
-                elif len(chunk) % 16 != 0:
-                    chunk += b' ' * (16 - (len(chunk) % 16))
-                fo.write(encryptor.encrypt(chunk))
-
-
-def AESdecryptCBC(key, filename, outputFilename, chunkSize=64*1024):
-    with open(filename, 'rb') as fi:
-        _, filesize, IV = loadHeader(fi)
-        decryptor = AES.new(key, AES.MODE_CBC, IV)
-        with open(outputFilename, 'wb') as fo:
-            while True:
-                chunk = fi.read(chunkSize)
-                if len(chunk) == 0:
-                    break
-                fo.write(decryptor.decrypt(chunk))
-            fo.truncate(filesize)
-
-
-def AESdecrypt(key, filename, outputFilename, chunkSize=64*1024):
-    with open(filename, 'rb') as fi:
-        mode, _, __ = loadHeader(fi)
-    if mode == 'CBC':
-        AESdecryptCBC(key, filename, outputFilename, chunkSize=64*1024)
-    else:
-        print('Unknown mode: '+mode)
