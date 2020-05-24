@@ -5,6 +5,7 @@ from Crypto.Util import Counter
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
+from math import ceil
 import os
 import mmap
 import json
@@ -87,7 +88,7 @@ def encryptToFile(data_path, header, output_path, cipher, chunkSize, progress):
         fo.write(header)
         fo.write(EncryptedDataLabel.decode('ascii'))
 
-    iters = Path(data_path).stat().st_size / chunkSize
+    iters = ceil(Path(data_path).stat().st_size / chunkSize)
     i = 0
 
     with open(data_path, 'rb') as fi:
@@ -144,7 +145,7 @@ def decryptToFile(data_path, output_path, cipher, data_offset, filesize, chunkSi
     :param int chunkSize: Size of chunks of a file encrypted at one
         moment. The greater this value, the greater memory consumption.
     """
-    iters = filesize / chunkSize
+    iters = ceil(filesize / chunkSize)
     i = 0
     with open(data_path, 'rb') as fi:
         fi.seek(data_offset)
