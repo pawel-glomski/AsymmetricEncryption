@@ -9,7 +9,7 @@ import os
 import mmap
 
 
-EncryptedDataLabel = b'cipher_data:'
+EncryptedDataLabel = b'encrypted_file:'
 
 
 def makeCipher(encModeStr: str, sym_key: bytes, filesize: int, initBytes=None):
