@@ -12,6 +12,7 @@ from controller import *
 
 class UiWindow(QMainWindow):
     """Class for program main window."""
+
     def __init__(self):
         """Default constructor"""
         super(UiWindow, self).__init__()
@@ -35,6 +36,10 @@ class UiWindow(QMainWindow):
         self.decryptButton.clicked.connect(self.decrypt)
         self.genButton.clicked.connect(self.genKeys)
 
+        self.progress = QProgressBar(self)
+        self.progress.setGeometry(200, 80, 250, 20)
+        self.progress.hide()
+
         self.show()
 
         self.controller = Controller()
@@ -55,20 +60,20 @@ class UiWindow(QMainWindow):
         """Display open file dialog for private key
         and store path in privatePath field."""
         self.privatePath.setText(QFileDialog.getOpenFileName(self,
-                                 'Podaj ścieżkę do klucza prywatnego')[0])
+                                                             'Podaj ścieżkę do klucza prywatnego')[0])
 
     def choosePublicKeyFile(self):
         """Display open file dialog for public key
         and store path in publicPath field."""
         self.publicPath.setText(QFileDialog.getOpenFileName(self,
-                                'Podaj ścieżkę do klucza publicznego')[0])
+                                                            'Podaj ścieżkę do klucza publicznego')[0])
 
     def genKeys(self):
         """Generate public and private key"""
-        self.publicPath.setText(QFileDialog.getSaveFileName(self, 
-                                'Zapisz klucz publiczny')[0])
-        self.privatePath.setText(QFileDialog.getSaveFileName(self, 
-                                 'Zapisz klucz prywatny')[0])
+        self.publicPath.setText(QFileDialog.getSaveFileName(self,
+                                                            'Zapisz klucz publiczny')[0])
+        self.privatePath.setText(QFileDialog.getSaveFileName(self,
+                                                             'Zapisz klucz prywatny')[0])
         self.password.setText(self.genPass.text())
         if self.controller.generate_keys(self.publicPath.text(),
                                          self.privatePath.text(),
@@ -93,13 +98,17 @@ class UiWindow(QMainWindow):
 
         inputPath = Path(QFileDialog.getOpenFileName(self, 'Wybierz plik')[0])
         if inputPath.is_file():
+            self.progress.show()
+            self.progress.setValue(0)
             if self.controller.encrypt(self.encModeBox.currentText(),
                                        str(inputPath),
                                        QFileDialog.getSaveFileName(self,
-                                       'Zapisz zaszyfrowany plik')[0]):
+                                                                   'Zapisz zaszyfrowany plik')[0],
+                                       self.progress):
                 self.showPopup('Zaszyfrowano pomyślnie', QMessageBox.Information)
         else:
             self.showPopup('Zła ścieżka pliku do szyfrowania')
+        self.progress.hide()
 
     def decrypt(self):
         """Decrypt a file.
@@ -119,15 +128,20 @@ class UiWindow(QMainWindow):
         inputPath = Path(QFileDialog.getOpenFileName(self, 'Wybierz plik')[0])
         if inputPath.is_file():
             try:
+                self.progress.show()
+                self.progress.setValue(0)
                 if self.controller.decrypt(str(inputPath),
                                            QFileDialog.getSaveFileName(self,
-                                           'Zapisz odszyfrowany plik')[0]):
+                                                                       'Zapisz odszyfrowany plik')[0],
+                                           self.progress):
                     self.showPopup('Odszyfrowano pomyślnie',
                                    QMessageBox.Information)
             except:
+                self.progress.hide()
                 return self.showPopup('Błędny format pliku')
         else:
             self.showPopup('Zła ścieżka pliku do odszyfrowania')
+        self.progress.hide()
 
 
 app = QApplication([])

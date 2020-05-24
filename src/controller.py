@@ -5,12 +5,13 @@ import crypto
 
 class Controller:
     """Class for manipulating keys and encrypting/decrypting files.
-    
+
     :param private_key: Current private key.
     :type private_key: RSA private key (:class:`RSA.RsaKey`) or None
     :param public_key: Current public key.
     :type public_key: RSA public key (:class:`RSA.RsaKey`) or None
     """
+
     def generate_keys(self, public_path, private_path, password):
         """Generate private key and public key.
 
@@ -73,7 +74,7 @@ class Controller:
                         f.read(), passphrase=password)
         return self.private_key
 
-    def encrypt(self, encModeStr, data_path, output_path):
+    def encrypt(self, encModeStr, data_path, output_path, progress):
         """Encrypt a file.
 
         :param str encModeStr: Chaining mode to use for encryption e.g. 'CBC'.
@@ -87,10 +88,10 @@ class Controller:
         if Path(output_path).suffix != '.jsonenc':
             output_path += '.jsonenc'
         public_key_string = self.public_key.export_key()
-        crypto.encrypt(encModeStr, public_key_string, data_path, output_path)
+        crypto.encrypt(encModeStr, public_key_string, data_path, output_path, progress)
         return True
 
-    def decrypt(self, data_path, output_path):
+    def decrypt(self, data_path, output_path, progress):
         """Decrypt a file.
 
         :param str data_path: Path to file to decrypt.
@@ -100,5 +101,5 @@ class Controller:
         """
         if output_path == '':
             return False
-        crypto.decrypt(self.private_key.exportKey(), data_path, output_path)
+        crypto.decrypt(self.private_key.exportKey(), data_path, output_path, progress)
         return True

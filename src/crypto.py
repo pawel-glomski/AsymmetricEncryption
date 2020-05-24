@@ -1,4 +1,4 @@
-import json
+from pathlib import Path
 from base64 import b64encode, b64decode
 from Crypto.PublicKey import RSA
 from Crypto.Util import Counter
@@ -7,7 +7,7 @@ from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
 import os
 import mmap
-
+import json
 
 EncryptedDataLabel = b'encrypted_file:'
 
@@ -55,7 +55,7 @@ def makeHeader(cipher, sym_key: bytes, encModeStr: str, public_key_string: str,
                        'filesize': filesize})
 
 
-def encrypt(encModeStr, public_key_string, data_path, ouput_path, chunkSize=64*1024):
+def encrypt(encModeStr, public_key_string, data_path, ouput_path, progress, chunkSize=64*1024):
     """Encrypt a file.
 
     :param str encModeStr: Chaining mode to use for encryption e.g. 'CBC'.
@@ -70,10 +70,10 @@ def encrypt(encModeStr, public_key_string, data_path, ouput_path, chunkSize=64*1
     cipher = makeCipher(encModeStr, sym_key, filesize)
     json_header = makeHeader(cipher, sym_key, encModeStr,
                              public_key_string, filesize)
-    encryptToFile(data_path, json_header, ouput_path, cipher, chunkSize)
+    encryptToFile(data_path, json_header, ouput_path, cipher, chunkSize, progress)
 
 
-def encryptToFile(data_path, header, output_path, cipher, chunkSize):
+def encryptToFile(data_path, header, output_path, cipher, chunkSize, progress):
     """Encrypt a file.
 
     :param str data_path: Path to file to encrypt.
@@ -87,9 +87,15 @@ def encryptToFile(data_path, header, output_path, cipher, chunkSize):
         fo.write(header)
         fo.write(EncryptedDataLabel.decode('ascii'))
 
+    iters = Path(data_path).stat().st_size / chunkSize
+    i = 0
+
     with open(data_path, 'rb') as fi:
         with open(output_path, 'ab') as fo:
             while True:
+                progress.setValue(i/iters*100)
+                i += 1
+
                 chunk = fi.read(chunkSize)
                 if len(chunk) == 0:
                     break
@@ -98,7 +104,7 @@ def encryptToFile(data_path, header, output_path, cipher, chunkSize):
                 fo.write(cipher.encrypt(chunk))
 
 
-def decrypt(private_key_string, data_path, ouput_path, chunkSize=64*1024):
+def decrypt(private_key_string, data_path, ouput_path, progress, chunkSize=64*1024):
     """Decrypt a file.
 
     :param str private_key_string: Private key to use for decrypting symmetric key.
@@ -124,10 +130,10 @@ def decrypt(private_key_string, data_path, ouput_path, chunkSize=64*1024):
 
     cipher = makeCipher(encModeStr, sym_key, filesize, initBytes)
     decryptToFile(data_path, ouput_path, cipher,
-                  data_offset, filesize, chunkSize)
+                  data_offset, filesize, chunkSize, progress)
 
 
-def decryptToFile(data_path, output_path, cipher, data_offset, filesize, chunkSize):
+def decryptToFile(data_path, output_path, cipher, data_offset, filesize, chunkSize, progress):
     """Decrypt a file.
 
     :param str data_path: Path to file to decrypt.
@@ -138,10 +144,15 @@ def decryptToFile(data_path, output_path, cipher, data_offset, filesize, chunkSi
     :param int chunkSize: Size of chunks of a file encrypted at one
         moment. The greater this value, the greater memory consumption.
     """
+    iters = filesize / chunkSize
+    i = 0
     with open(data_path, 'rb') as fi:
         fi.seek(data_offset)
         with open(output_path, 'wb') as fo:
             while True:
+                progress.setValue(i/iters*100)
+                i += 1
+
                 chunk = fi.read(chunkSize)
                 if len(chunk) == 0:
                     break
