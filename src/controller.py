@@ -20,7 +20,7 @@ class Controller:
         :param str public_path: Path to file for public key.
         :param str private_path: Path to file for private key.
         :param str password: Password for encrypting private key.
-        If password is empty, then private key will not be encrypted.
+            If password is empty, then private key will not be encrypted.
         :return: True if neither public or private path were empty, False otherwise.
         :rtype: bool
         """

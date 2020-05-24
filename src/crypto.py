@@ -19,7 +19,7 @@ def makeCipher(encModeStr: str, sym_key: bytes, filesize: int, initBytes=None):
     :param bytes sym_key: The secret key to use in the symmetric cipher.
     :param int filesize: Size of a file to encrypt or decrypt.
     :param initBytes: Initial bytes to be used as either initialization vector
-    or nonce (default None).
+        or nonce (default None).
     :type initBytes: bytes, bytearray, memoryview or None
     :return: an AES object.
     """
@@ -43,7 +43,7 @@ def makeHeader(cipher, sym_key: bytes, encModeStr: str, public_key_string: str,
     :param str encModeStr: Chaining mode used in cipher e.g. 'CBC'.
     :param str public_key_string: Public key to use for encrypting sym_key.
     :param int filesize: Size of a file to encrypt.
-    :return: json formatted header.
+    :return: json formatted header
     :rtype: str
     """
     initBytes = cipher.nonce if hasattr(cipher, 'nonce') else cipher.iv
@@ -63,7 +63,7 @@ def encrypt(encModeStr, public_key_string, data_path, ouput_path, chunkSize=64*1
     :param str data_path: Path to file to encrypt.
     :param str output_path: Path to output file.
     :param int chunkSize: Size of chunks of a file encrypted at one
-    moment. The greater this value, the greater memory consumption (default 65536).
+        moment. The greater this value, the greater memory consumption (default 65536).
     """
     sym_key = get_random_bytes(32)
     filesize = os.path.getsize(data_path)
@@ -81,7 +81,7 @@ def encryptToFile(data_path, header, output_path, cipher, chunkSize):
     :param str output_path: Path to output file.
     :param cipher: AES cipher object for encrypting data.
     :param int chunkSize: Size of chunks of a file encrypted at one
-    moment. The greater this value, the greater memory consumption.
+        moment. The greater this value, the greater memory consumption.
     """
     with open(output_path, 'w') as fo:
         fo.write(header)
@@ -105,7 +105,7 @@ def decrypt(private_key_string, data_path, ouput_path, chunkSize=64*1024):
     :param str data_path: Path to file to decrypt.
     :param str output_path: Path to output file.
     :param int chunkSize: Size of chunks of a file encrypted at one
-    moment. The greater this value, the greater memory consumption (default 65536).
+        moment. The greater this value, the greater memory consumption (default 65536).
     """
     private_key = RSA.import_key(private_key_string)
 
@@ -136,7 +136,7 @@ def decryptToFile(data_path, output_path, cipher, data_offset, filesize, chunkSi
     :param int data_offset: Position of begining of encrypted data in file.
     :param int filesize: Desired size of output file, read from the file header.
     :param int chunkSize: Size of chunks of a file encrypted at one
-    moment. The greater this value, the greater memory consumption.
+        moment. The greater this value, the greater memory consumption.
     """
     with open(data_path, 'rb') as fi:
         fi.seek(data_offset)

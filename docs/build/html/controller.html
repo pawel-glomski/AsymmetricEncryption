@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>controller module &mdash; AsymmetricEncryption  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> AsymmetricEncryption
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">controller module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AsymmetricEncryption</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>controller module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/controller.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-controller">
+<span id="controller-module"></span><h1>controller module<a class="headerlink" href="#module-controller" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="controller.Controller">
+<em class="property">class </em><code class="sig-prename descclassname">controller.</code><code class="sig-name descname">Controller</code><a class="headerlink" href="#controller.Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for manipulating keys and encrypting/decrypting files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>private_key</strong> (RSA private key (<code class="xref py py-class docutils literal notranslate"><span class="pre">RSA.RsaKey</span></code>) or None) – Current private key.</p></li>
+<li><p><strong>public_key</strong> (RSA public key (<code class="xref py py-class docutils literal notranslate"><span class="pre">RSA.RsaKey</span></code>) or None) – Current public key.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="controller.Controller.decrypt">
+<code class="sig-name descname">decrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#controller.Controller.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrypt a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – Path to file to decrypt.</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path to output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if output_path isn’t empty, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="controller.Controller.encrypt">
+<code class="sig-name descname">encrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encModeStr</span></em>, <em class="sig-param"><span class="n">data_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#controller.Controller.encrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypt a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>encModeStr</strong> (<em>str</em>) – Chaining mode to use for encryption e.g. ‘CBC’.</p></li>
+<li><p><strong>data_path</strong> (<em>str</em>) – Path to file to encrypt.</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path to output file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if output_path isn’t empty, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="controller.Controller.generate_keys">
+<code class="sig-name descname">generate_keys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">public_path</span></em>, <em class="sig-param"><span class="n">private_path</span></em>, <em class="sig-param"><span class="n">password</span></em><span class="sig-paren">)</span><a class="headerlink" href="#controller.Controller.generate_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate private key and public key.</p>
+<p>This method generates both private and public keys and
+stores them as files and in appropriate fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>public_path</strong> (<em>str</em>) – Path to file for public key.</p></li>
+<li><p><strong>private_path</strong> (<em>str</em>) – Path to file for private key.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password for encrypting private key.
+If password is empty, then private key will not be encrypted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if neither public or private path were empty, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="controller.Controller.load_private">
+<code class="sig-name descname">load_private</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">private_path</span></em>, <em class="sig-param"><span class="n">password</span></em><span class="sig-paren">)</span><a class="headerlink" href="#controller.Controller.load_private" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load private key from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>private_path</strong> (<em>str</em>) – Path to file with private key.</p></li>
+<li><p><strong>password</strong> (<em>str</em><em> or </em><em>None</em>) – Password for decrypting private key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Private key object if successfully loaded, None otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>RSA private key (<code class="xref py py-class docutils literal notranslate"><span class="pre">RSA.RsaKey</span></code>) or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="controller.Controller.load_public">
+<code class="sig-name descname">load_public</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">public_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#controller.Controller.load_public" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load public key from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>public_path</strong> (<em>str</em>) – Path to file with public key.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Public key object if successfully loaded, None otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>RSA public key (<code class="xref py py-class docutils literal notranslate"><span class="pre">RSA.RsaKey</span></code>) or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Tomasz Rusinowicz, Paweł Głomski, Jan Dorniak
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

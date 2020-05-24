@@ -11,7 +11,7 @@ from controller import *
 
 
 class UiWindow(QMainWindow):
-    """Class for program main window derived from :class:`QMainWindow`"""
+    """Class for program main window."""
     def __init__(self):
         """Default constructor"""
         super(UiWindow, self).__init__()
